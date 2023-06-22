@@ -118,12 +118,13 @@ type archive50 struct {
 	byteReader               // reader for current block data
 	v          *bufio.Reader // reader for current archive volume
 	pass       []byte
-	blockKey   []byte                // key used to encrypt blocks
-	multi      bool                  // archive is multi-volume
-	solid      bool                  // is a solid archive
-	checksum   hash50                // file checksum
-	dec        decoder               // optional decoder used to unpack file
-	buf        readBuf               // temporary buffer
+	blockKey   []byte  // key used to encrypt blocks
+	multi      bool    // archive is multi-volume
+	solid      bool    // is a solid archive
+	checksum   hash50  // file checksum
+	dec        decoder // optional decoder used to unpack file
+	buf        readBuf // temporary buffer
+	encrypted  bool
 	keyCache   [cacheSize50]struct { // encryption key cache
 		kdfCount int
 		salt     []byte
@@ -250,9 +251,14 @@ func (a *archive50) parseFileEncryptionRecord(b readBuf, f *fileBlockHeader) err
 	return nil
 }
 
+func (a *archive50) isEncrypted() bool {
+	return a.encrypted
+}
+
 func (a *archive50) parseFileHeader(h *blockHeader50) (*fileBlockHeader, error) {
 	a.checksum.sum = nil
 	a.checksum.key = nil
+	a.encrypted = false
 
 	f := new(fileBlockHeader)
 
@@ -316,6 +322,7 @@ func (a *archive50) parseFileHeader(h *blockHeader50) (*fileBlockHeader, error) 
 		switch e.ftype {
 		case 1: // encryption
 			err = a.parseFileEncryptionRecord(e.data, f)
+			a.encrypted = true
 		case 2:
 			// TODO: hash
 		case 3:

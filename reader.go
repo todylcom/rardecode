@@ -168,6 +168,7 @@ type fileBlockHeader struct {
 type fileBlockReader interface {
 	io.Reader                        // Read's read data from the current file block
 	io.ByteReader                    // Read bytes from current file block
+	isEncrypted() bool               // returns true if archive is encrypted (password protected)
 	next() (*fileBlockHeader, error) // reads the next file block header at current position
 	reset()                          // resets encryption
 	isSolid() bool                   // is archive solid
@@ -267,6 +268,11 @@ type Reader struct {
 	dr     decodeReader     // reader for decoding and filters if file is compressed
 	cksum  fileChecksum     // current file checksum
 	solidr io.Reader        // reader for solid file
+}
+
+// IsEncrypted returns true if archive file is encrypted
+func (r *Reader) IsEncrypted() bool {
+	return r.pr.r.isEncrypted()
 }
 
 // Read reads from the current file in the RAR archive.
