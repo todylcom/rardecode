@@ -97,6 +97,7 @@ type fileBlockHeader struct {
 type fileBlockReader interface {
 	next(v *volume) (*fileBlockHeader, error) // reads the volume and returns the next fileBlockHeader
 	clone() fileBlockReader                   // makes a copy of the fileBlockReader
+	isEncrypted() bool                        // returns true if archive is encrypted (password protected)
 }
 
 func newFileBlockReader(v *volume) (fileBlockReader, error) {

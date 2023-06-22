@@ -335,6 +335,11 @@ type Reader struct {
 	pr *packedFileReader // reader for current raw file bytes
 }
 
+// IsEncrypted returns true if archive file is encrypted
+func (r *Reader) IsEncrypted() bool {
+	return r.pr.r.isEncrypted()
+}
+
 // Read reads from the current file in the RAR archive.
 func (r *Reader) Read(p []byte) (int, error) {
 	if r.r == nil {

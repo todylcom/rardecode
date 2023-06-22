@@ -240,6 +240,10 @@ func (a *archive15) getKeys(salt []byte) (key, iv []byte) {
 	return key, iv
 }
 
+func (a *archive15) isEncrypted() bool {
+	return a.encrypted
+}
+
 func (a *archive15) parseFileHeader(h *blockHeader15) (*fileBlockHeader, error) {
 	f := new(fileBlockHeader)
 
