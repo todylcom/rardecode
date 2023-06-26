@@ -183,7 +183,7 @@ func (a *archive50) getKeys(kdfCount int, salt, check []byte) ([][]byte, error) 
 	}
 
 	// check password
-	if check != nil && !bytes.Equal(check, keys[2]) {
+	if len(a.pass) > 0 && check != nil && !bytes.Equal(check, keys[2]) {
 		return nil, errBadPassword
 	}
 	return keys, nil
@@ -211,7 +211,7 @@ func (a *archive50) parseFileEncryptionRecord(b readBuf, f *fileBlockHeader) err
 	}
 
 	keys, err := a.getKeys(kdfCount, salt, check)
-	if err != nil {
+	if err != nil || len(keys) == 0 {
 		return err
 	}
 
@@ -327,7 +327,7 @@ func (a *archive50) parseEncryptionBlock(b readBuf) error {
 	}
 
 	keys, err := a.getKeys(kdfCount, salt, check)
-	if err != nil {
+	if err != nil || len(keys) == 0 {
 		return err
 	}
 	a.blockKey = keys[0]
